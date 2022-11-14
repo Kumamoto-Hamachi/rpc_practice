@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+// ユーザー情報を表すメッセージ型
+message User {
+  uint32 id = 1;
+  string nickname = 2;
+  string mail_address = 3;
+  enum UserType {
+    NONE = 0;
+    NORMAL = 1;
+    ADMINISTRATOR = 2;
+    GUEST = 3;
+    DISABLED = 4;
+  }
+  UserType user_type = 4;
+}
+
+// ユーザーの情報リクエストに使用するメッセージ型
+message UserRequest {
+  uint32 id = 1;
+}
+
+// ユーザーの情報リクエストに使用するメッセージ型
+message UserTypeRequest {
+  enum UserType {
+    NONE = 0;
+    NORMAL = 1;
+    ADMINISTRATOR = 2;
+    GUEST = 3;
+    DISABLED = 4;
+  }
+  UserType user_type = 4;
+}
+
+// ユーザー情報を返す際に使用するメッセージ型
+message UserResponse {
+  bool error = 1;
+  string message = 2;
+  User user = 3;
+}
+
+// ユーザー人数を返す際に使用するメッセージ型
+message UserCntResponse {
+  bool error = 1;
+  uint32 user_cnt = 2;
+}
+
+// ユーザー管理を行うサービス
+service UserManager {
+  // ユーザー情報を取得する
+  rpc GetUser (UserRequest) returns (UserResponse) {}
+  // 新規のユーザー情報を追加する
+  rpc AddUser (User) returns (UserResponse) {}
+  // 与えられたユーザーのうち存在する人数を取得する
+  rpc CountAlreadyUsers (stream UserRequest) returns (UserCntResponse) {}
+  // 与えられたユーザータイプと同種のユーザーを取得する
+  rpc GetUsersByType (UserTypeRequest) returns (stream UserResponse) {}
+  rpc GetUsersByIds (stream UserRequest) returns (stream UserResponse) {}
+}
+

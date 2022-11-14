@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+// クラブ情報を表すメッセージ型
+message Club {
+  uint32 id = 1;
+  string name = 2;
+  string address = 3;
+  repeated uint32 user_id_list = 4;
+}
+
+// クラブ情報のリクエストに使用するメッセージ型
+message ClubRequest {
+  uint32 id = 1;
+}
+
+// クラブ情報を返す際に使用するメッセージ型
+message ClubResponse {
+  bool error = 1;
+  string message = 2;
+  Club club = 3;
+}
+
+// クラブ管理を行うサービス
+service ClubManager {
+  // クラブ情報を取得する
+  rpc GetClub (ClubRequest) returns (ClubResponse) {}
+}
+

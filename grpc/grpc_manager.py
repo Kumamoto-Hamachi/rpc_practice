@@ -1,8 +1,6 @@
 # gRPC serverに登録するservicer
 from servicers.user import UserManager
-from servicers.club import ClubManager
-
-# gRPCのサーバー実装ではThreadPoolを利用するので、そのためのモジュールをimportしておく
+# gRPCのサーバー実装ではThreadPoolを利用する
 from concurrent.futures import ThreadPoolExecutor
 
 # 「grpc」パッケージと、grpc_tools.protocによって生成したパッケージをimportする
@@ -13,30 +11,19 @@ import user_pb2_grpc
 # grpc reflection用の追加ライブラリ
 from grpc_reflection.v1alpha import reflection
 
-services: list = [
-        UserManager,
-        ClubManager
-        ]
-
-def register_servicers_to_server(servicer, server):
-    # 例: user_pb2_grpc.add_UserManagerServicer_to_server(UserManager(), server)
-    registerer = servicer.get_registerer()
-    registerer(servicer(), server)
 
 def manager():
     # Serverオブジェクトを作成する
     server = grpc.server(ThreadPoolExecutor(max_workers=2))
 
     # Serverオブジェクトに定義したServicerクラスを登録する
-    for servicer in services:
-        register_servicers_to_server(servicer, server)
+    user_pb2_grpc.add_UserManagerServicer_to_server(UserManager(), server)
 
     # [追記] リフレクション登録
     SERVICE_NAMES = (
         reflection.SERVICE_NAME,
     )
-    for servicer in services:
-        SERVICE_NAMES += (servicer.get_name_for_reflection_register(),)
+    SERVICE_NAMES += (user_pb2.DESCRIPTOR.services_by_name[UserManager.__name__].full_name,)
     reflection.enable_server_reflection(SERVICE_NAMES, server)
 
     # 1234番ポートで待ち受けするよう指定する

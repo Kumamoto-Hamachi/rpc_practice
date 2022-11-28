@@ -3,7 +3,6 @@ from typing import List
 from collections.abc import Iterable
 import json
 
-from .base import BaseServicer
 
 # 「grpc」パッケージと、grpc_tools.protocによって生成したパッケージをimportする
 import user_pb2
@@ -16,21 +15,13 @@ with open(USER_DB, mode="r") as fp:
     users = json.load(fp)
 
 
-class UserManager(user_pb2_grpc.UserManagerServicer, BaseServicer):
+class UserManager(user_pb2_grpc.UserManagerServicer):
     """
     サービス定義から生成されたクラスを継承して、
     定義したリモートプロシージャに対応するメソッドを実装する。
     クライアントが引数として与えたメッセージに対応するオブジェクト
     context引数にはRPCに関する情報を含むオブジェクトが渡される
     """
-
-    @staticmethod
-    def get_registerer():
-        return user_pb2_grpc.add_UserManagerServicer_to_server
-
-    @classmethod
-    def get_name_for_reflection_register(self) -> str:
-        return user_pb2.DESCRIPTOR.services_by_name[self.__name__].full_name
 
     def GetUser(self, request: user_pb2.UserRequest, context):
         """
@@ -133,9 +124,8 @@ class UserManager(user_pb2_grpc.UserManagerServicer, BaseServicer):
 
     def GetUsersByIds(self, request_iter: Iterable[user_pb2.UserRequest], context):
         """
-        TODO
         Bidrectional streaming RPC
-        複数渡されたユーザーidのうち既に存在している人数を取得する
+        複数渡されたユーザーidのうち存在しているUserを返す
         """
         user_list = []
         for request in request_iter:

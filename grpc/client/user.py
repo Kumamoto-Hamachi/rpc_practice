@@ -6,6 +6,14 @@ import grpc
 import user_pb2
 import user_pb2_grpc
 
+class UserClientManager(user_pb2_grpc.UserManagerServicer, BaseServicer):
+
+    def __init__(self):
+        pass
+
+    def get_stub(channel):
+        return user_pb2_grpc.UserManagerStub(channel)
+
 def main():
     # 引数をチェックする
     if (len(sys.argv) < 2):
